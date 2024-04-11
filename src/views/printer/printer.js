@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useEffect } from "react";
 import Barcode from "react-barcode";
 import { useReactToPrint } from "react-to-print";
+import JsBarcode from "jsbarcode";
 
 function Printer() {
-  const [barcodeStringArr, setBarcodeStringArr] = useState([""]);
+  const [barcodeStringArr, setBarcodeStringArr] = useState(["newCodebar"]);
   const componentRef = useRef();
+  const barcodeRefs = useRef([]);
 
   const handleOnChange = (event, index) => {
     const newBarcodeStringArr = [...barcodeStringArr];
@@ -16,7 +18,7 @@ function Printer() {
   };
   const handleAddCodebarInput = (event) => {
     if (event.key === "Enter") {
-      setBarcodeStringArr([...barcodeStringArr, ""]);
+      setBarcodeStringArr([...barcodeStringArr, "newCodebar"]);
     }
   };
   const handleDeleteCodebarInput = (index) => {
@@ -24,8 +26,24 @@ function Printer() {
     newBarcodeStringArr.splice(index, 1);
     setBarcodeStringArr(newBarcodeStringArr);
   };
+  const generateBarcodes = () => {
+    barcodeStringArr.forEach((value, index) => {
+      const barcodeValue = value === "" ? "null" : value;
+  
+      JsBarcode(barcodeRefs.current[index], barcodeValue, {
+        format: "CODE128",
+        width: 1,
+        height: 50,
+        displayValue: true,
+        margin: 30,
+        background: "#dddddd"
+      });
+    });
+    
+  };
   useEffect(() => {
     document.addEventListener("keypress", handleAddCodebarInput);
+    generateBarcodes();
     return () => {
       document.removeEventListener("keypress", handleAddCodebarInput);
     };
@@ -34,7 +52,6 @@ function Printer() {
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
   });
-  //console.log(barcodeStringArr);
   return (
     <>
       <div>
@@ -64,31 +81,24 @@ function Printer() {
         <div>
           <button onClick={handlePrint}>Print</button>
         </div>
-        <div
-          ref={componentRef}
-          style={{
+        <div>
+          <button onClick={generateBarcodes}>generate</button>
+        </div>
+        <div ref={componentRef}  style={{
             display: "flex",
             flexWrap: "wrap",
             width: "100%", // Ensure the container spans the entire width
             boxSizing: "border-box", // Include padding and border in the width
-          }}
-        >
-          <div className="barcode-generate">
-            {barcodeStringArr &&
-              barcodeStringArr.length > 0 &&
-              barcodeStringArr.map((item, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: "calc(33.333% - 20px)", // Adjust for padding
-                    padding: "10px",
-                    boxSizing: "border-box", // Include padding in the width calculation
-                  }}
-                >
-                  <Barcode value={item} />
-                </div>
-              ))}
-          </div>
+          }}>
+          {barcodeStringArr && barcodeStringArr.map((value, index) => (
+            <>
+            <svg
+              key={index}
+              ref={(ref) => (barcodeRefs.current[index] = ref)}
+            ><br/></svg>
+            <br/>
+            </>
+          ))}
         </div>
       </div>
     </>
