@@ -41,9 +41,24 @@ function Printer() {
     });
     
   };
+  const generateBarcode = (barcodeString,index) =>{
+    const barcodeStringValue = barcodeString.trim() === "" ? "null" : barcodeString;
+
+    JsBarcode(barcodeRefs.current[index], barcodeStringValue, {
+      format: "CODE128",
+      width: 2,
+      height: 50,
+      displayValue: true,
+      margin: 30,
+      background: "#dddddd"
+    });
+  }
   useEffect(() => {
     document.addEventListener("keypress", handleAddCodebarInput);
-    generateBarcodes();
+    //generateBarcodes();
+    barcodeStringArr.forEach((item,index)=>{
+      generateBarcode(item,index);
+    })
     return () => {
       document.removeEventListener("keypress", handleAddCodebarInput);
     };
@@ -81,9 +96,6 @@ function Printer() {
         <div>
           <button onClick={handlePrint}>Print</button>
         </div>
-        <div>
-          <button onClick={generateBarcodes}>generate</button>
-        </div>
         <div ref={componentRef}  style={{
             display: "flex",
             flexWrap: "wrap",
@@ -95,8 +107,7 @@ function Printer() {
             <svg
               key={index}
               ref={(ref) => (barcodeRefs.current[index] = ref)}
-            ><br/></svg>
-            <br/>
+            ></svg>
             </>
           ))}
         </div>
