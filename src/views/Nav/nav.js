@@ -13,6 +13,9 @@ function Navigation() {
           <li>
             <NavLink to="/printer">Printer</NavLink>
           </li>
+          <li>
+            <NavLink to="/reader-webcam">Webcam barcode reader</NavLink>
+          </li>
         </ul>
       </>
     );
